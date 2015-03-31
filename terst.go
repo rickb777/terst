@@ -18,9 +18,9 @@ terst is compatible with (and works via) the standard testing package: http://go
 
 Do not import terst directly, instead use `terst-import` to copy it into your testing environment:
 
-https://github.com/robertkrimen/terst/tree/master/terst-import
+https://github.com/rickb777/terst/tree/master/terst-import
 
-    $ go get github.com/robertkrimen/terst/terst-import
+    $ go get github.com/rickb777/terst/terst-import
 
     $ terst-import
 
@@ -39,6 +39,7 @@ import (
 	"sync"
 	"testing"
 	"time"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // Is compares two values (got & expect) and returns true if the comparison is true,
@@ -385,10 +386,10 @@ func IsErr(arguments ...interface{}) error {
 				}
 			}
 			return ErrFail(fmt.Errorf(
-				"\nFAIL (%s)\n     got: %v%s\nexpected: %v%s",
+				"\nFAIL (%s)\n---- got: %s\n++++ expected: %s",
 				comparator,
-				got, typeKindString(got),
-				expect, typeKindString(expect),
+				spew.Sdump(got),
+				spew.Sdump(expect),
 			))
 		}
 		return ErrFail(fmt.Errorf(

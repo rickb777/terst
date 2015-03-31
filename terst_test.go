@@ -14,57 +14,56 @@ func fail() {
 
 func TestSynopsis(t *testing.T) {
 	Terst(t, func() {
-		Is(1, ">", 0)
-		Is(2+2, "!=", 5)
-		Is("Nothing happens.", "=~", `ing(\s+)happens\.$`)
-	})
+			Is(1, ">", 0)
+			Is(2+2, "!=", 5)
+			Is("Nothing happens.", "=~", `ing(\s+)happens\.$`)
+		})
 }
 
 func Test(t *testing.T) {
 	Terst(t, func() {
-		Is("abc", "abc")
+			Is("abc", "abc")
 
-		Is("abc", "==", "abc")
+			Is("abc", "==", "abc")
 
-		Is("abc", "!=", "def")
+			Is("abc", "!=", "def")
 
-		Is(0, "!=", 3.14159)
+			Is(0, "!=", 3.14159)
 
-		Is(math.NaN(), math.NaN())
+			Is(math.NaN(), math.NaN())
 
-		Is(nil, nil)
+			Is(nil, nil)
 
-		var abc map[string]string
+			var abc map[string]string
 
-		Is(abc, nil)
+			Is(abc, nil)
 
-		Is([]byte("Nothing happens."), "=~", `ing(\s+)happens\.$`)
+			Is([]byte("Nothing happens."), "=~", `ing(\s+)happens\.$`)
 
-		{
-			err := IsErr(abc, "!=", nil)
-			Is(err, "!=", nil)
+			{
+				err := IsErr(abc, "!=", nil)
+				Is(err, "!=", nil)
 
-			if false {
-				func() {
-					fail()
-				}()
+				if false {
+					func() {
+						fail()
+					}()
+				}
+
+				err = IsErr("abc", ">", "def")
+				Is(err, "!=", nil)
 			}
-
-			err = IsErr("abc", ">", "def")
-			Is(err, "!=", nil)
-		}
-	})
+		})
 }
 
 func Test_findTestFunc(t *testing.T) {
 	Terst(t, func() {
-		cl := Caller()
-		Is(cl.TestFunc().Name(), "github.com/robertkrimen/terst.Test_findTestFunc")
-	})
+			cl := Caller()
+			Is(cl.TestFunc().Name(), "github.com/rickb777/terst.Test_findTestFunc")
+		})
 }
 
 func Test_IsErr(t *testing.T) {
-
 	{
 		// NaN == NaN
 		result, err := compareNumber(math.NaN(), math.NaN())
@@ -112,11 +111,11 @@ func Test_IsErr(t *testing.T) {
 	}
 
 	test := func(arguments ...interface{}) bool {
-		expect := arguments[len(arguments)-1]
+		expect := arguments[len(arguments) - 1]
 		arguments = arguments[:len(arguments)-1]
 
 		input0 := arguments[0]
-		input1 := arguments[len(arguments)-1]
+		input1 := arguments[len(arguments) - 1]
 
 		err := IsErr(arguments...)
 		if expect == nil && err == nil {
