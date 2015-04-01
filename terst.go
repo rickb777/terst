@@ -277,7 +277,7 @@ func compareNumber(got, expect interface{}) (int, error) {
 		expect := reflect.ValueOf(expect)
 		k1 := expect.Kind()
 		if reflect.Float32 <= k0 && k0 <= reflect.Float64 ||
-			reflect.Float32 <= k1 && k1 <= reflect.Float64 {
+		   reflect.Float32 <= k1 && k1 <= reflect.Float64 {
 			got, err := floatPromote(got)
 			if err != nil {
 				return 0, err
@@ -301,6 +301,26 @@ func compareNumber(got, expect interface{}) (int, error) {
 	}
 
 	return 0, errInvalid
+}
+
+func isPrimitive(thing interface{}) bool {
+	switch thing.(type) {
+	case float32, float64,
+	uint, uint8, uint16, uint32, uint64,
+	int, int8, int16, int32, int64,
+	complex64, complex128,
+	string, []byte, bool:
+		return true;
+	}
+
+	value := reflect.ValueOf(thing)
+	kind := value.Kind()
+	if kind == reflect.Array || kind == reflect.Slice {
+		if value.Len() > 0 {
+			return isPrimitive(value.Index(0))
+		}
+	}
+	return false;
 }
 
 // IsErr compares two values (got & expect) and returns nil if the comparison is true, an ErrFail if
@@ -329,6 +349,8 @@ func IsErr(arguments ...interface{}) error {
 		got, expect = arguments[0], arguments[2]
 	}
 
+	bothArePrimitive := isPrimitive(got) && isPrimitive(expect)
+
 	var result int
 	var err error
 
@@ -344,11 +366,19 @@ func IsErr(arguments ...interface{}) error {
 	}
 
 	if err == errInvalid {
+		if bothArePrimitive {
+			return ErrInvalid(fmt.Errorf(
+				"\nINVALID (%s):\n        got: %v (%T)\n   expected: %v (%T)",
+				comparator,
+				got, got,
+				expect, expect,
+			))
+		}
 		return ErrInvalid(fmt.Errorf(
-			"\nINVALID (%s):\n        got: %v (%T)\n   expected: %v (%T)",
+			"\nINVALID (%s)\n---- got: %s\n++++ expected: %s",
 			comparator,
-			got, got,
-			expect, expect,
+			spew.Sdump(got),
+			spew.Sdump(expect),
 		))
 	} else if err != nil {
 		return err
@@ -385,12 +415,21 @@ func IsErr(arguments ...interface{}) error {
 					))
 				}
 			}
-			return ErrFail(fmt.Errorf(
-				"\nFAIL (%s)\n---- got: %s\n++++ expected: %s",
-				comparator,
-				spew.Sdump(got),
-				spew.Sdump(expect),
-			))
+			if bothArePrimitive {
+				return ErrFail(fmt.Errorf(
+					"\nFAIL (%s)\n     got: %v%s\nexpected: %v%s",
+					comparator,
+					got, typeKindString(got),
+					expect, typeKindString(expect),
+				))
+			} else {
+				return ErrFail(fmt.Errorf(
+					"\nFAIL (%s)\n---- got: %s\n++++ expected: %s",
+					comparator,
+					spew.Sdump(got),
+					spew.Sdump(expect),
+				))
+			}
 		}
 		return ErrFail(fmt.Errorf(
 			"\nFAIL (%s)\n     got: %v%s\nexpected: %s %v%s",
@@ -459,7 +498,7 @@ func Terst(t *testing.T, arguments ...func()) {
 			name := scope.testFunc.Name()
 			index := strings.LastIndex(scope.testFunc.Name(), ".")
 			if index >= 0 {
-				name = name[index+1:] + "(Terst)"
+				name = name[index+1:]+"(Terst)"
 			} else {
 				name = "(Terst)"
 			}

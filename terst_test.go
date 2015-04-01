@@ -8,6 +8,10 @@ import (
 	"testing"
 )
 
+type Point struct {
+	X, Y int
+}
+
 func fail() {
 	Is("abc", ">", regexp.MustCompile(`abc`))
 }
@@ -148,4 +152,9 @@ func Test_IsErr(t *testing.T) {
 
 	test([]byte("def"), "=~", `abc$`, "FAIL (=~) got: def [100 101 102] ([]uint8=slice) expected: abc$")
 
+	test(Point{}, Point{1,2}, "FAIL (==) ---- got: (terst.Point) { X: (int) 0, Y: (int) 0 } ++++ expected: (terst.Point) { X: (int) 1, Y: (int) 2 }")
+
+	test(&Point{}, &Point{1,2}, "FAIL (==) ---- got: (*terst.Point)(0xc20800b0f0)({ X: (int) 0, Y: (int) 0 }) ++++ expected: (*terst.Point)(0xc20800b100)({ X: (int) 1, Y: (int) 2 })")
+
+	test(Point{1, 2}, &Point{1,2}, "INVALID (==) ---- got: (terst.Point) { X: (int) 1, Y: (int) 2 } ++++ expected: (*terst.Point)(0xc20800b2b0)({ X: (int) 1, Y: (int) 2 })")
 }
