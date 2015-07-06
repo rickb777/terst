@@ -39,7 +39,7 @@ import (
 	"sync"
 	"testing"
 	"time"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/kortschak/utter"
 )
 
 // Is compares two values (got & expect) and returns true if the comparison is true,
@@ -377,8 +377,8 @@ func IsErr(arguments ...interface{}) error {
 		return ErrInvalid(fmt.Errorf(
 			"\nINVALID (%s)\n---- got: %s\n++++ expected: %s",
 			comparator,
-			spew.Sdump(got),
-			spew.Sdump(expect),
+			utter.Sdump(got),
+			utter.Sdump(expect),
 		))
 	} else if err != nil {
 		return err
@@ -426,8 +426,8 @@ func IsErr(arguments ...interface{}) error {
 				return ErrFail(fmt.Errorf(
 					"\nFAIL (%s)\n---- got: %s\n++++ expected: %s",
 					comparator,
-					spew.Sdump(got),
-					spew.Sdump(expect),
+					utter.Sdump(got),
+					utter.Sdump(expect),
 				))
 			}
 		}
